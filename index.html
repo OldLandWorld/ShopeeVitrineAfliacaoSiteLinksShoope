@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vitrine de Produtos</title>
+<style>
+  :root{
+    --preto:#0a0a0a;
+    --branco:#ffffff;
+    --fundo:#ececec;
+    --cinza-borda:#dcdcdc;
+    --cinza-texto:#555;
+    --radius:14px;
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    background:var(--fundo);
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color:var(--preto);
+    padding-bottom:40px;
+  }
+
+  /* No celular fica estreito (como um app), no computador se espalha mais */
+  .container{
+    max-width:480px;
+    margin:0 auto;
+    padding:16px;
+  }
+  @media (min-width: 900px){
+    .container{ max-width:1100px; padding:24px; }
+  }
+
+  /* Topo: busca + menu */
+  .topo{
+    display:flex;
+    gap:10px;
+    margin-bottom:14px;
+  }
+
+  .busca{
+    flex:1;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--preto);
+    border-radius:var(--radius);
+    padding:14px 18px;
+  }
+  .busca input{
+    flex:1;
+    background:none;
+    border:none;
+    outline:none;
+    color:#fff;
+    font-size:15px;
+    font-style:italic;
+  }
+  .busca input::placeholder{ color:#999; }
+  .busca svg{ flex-shrink:0; }
+
+  .menu-btn{
+    flex-shrink:0;
+    width:54px;
+    background:var(--preto);
+    border-radius:var(--radius);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:none;
+    transition: background .15s ease;
+  }
+  .menu-btn.ativo{ background:#333; }
+
+  /* Categorias */
+  .categorias{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding-bottom:6px;
+    margin-bottom:18px;
+    scrollbar-width:none;
+    max-height:60px;
+    opacity:1;
+    transition: max-height .25s ease, opacity .2s ease, margin-bottom .25s ease;
+  }
+  .categorias::-webkit-scrollbar{ display:none; }
+  .categorias.fechada{
+    max-height:0;
+    opacity:0;
+    margin-bottom:0;
+    pointer-events:none;
+  }
+
+  .categoria-chip{
+    flex-shrink:0;
+    background:var(--preto);
+    color:#fff;
+    border:none;
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:600;
+    white-space:nowrap;
+  }
+  .categoria-chip.ativa{
+    background:#fff;
+    color:var(--preto);
+    border:2px solid var(--preto);
+  }
+
+  /* Grade de produtos: 1 coluna no celular, várias no computador */
+  #listaProdutos{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:20px;
+  }
+  @media (min-width: 640px){
+    #listaProdutos{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1000px){
+    #listaProdutos{ grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* Card do produto */
+  .produto{
+    background:var(--branco);
+    border:1px solid var(--cinza-borda);
+    border-radius:18px;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .produto-imagem{
+    position:relative;
+    width:100%;
+    aspect-ratio: 1 / 1;
+    border-radius:var(--radius);
+    background:var(--fundo);
+    border:1px solid var(--cinza-borda);
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#999;
+    margin-bottom:14px;
+    font-weight:700;
+    font-size:15px;
+  }
+  .produto-imagem img{
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    opacity:0;
+    transition: opacity .6s ease;
+  }
+  .produto-imagem img.ativa{ opacity:1; }
+
+  .pontos{
+    position:absolute;
+    bottom:8px;
+    left:0;
+    right:0;
+    display:flex;
+    justify-content:center;
+    gap:6px;
+  }
+  .pontos span{
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:rgba(255,255,255,.5);
+  }
+  .pontos span.ativo{ background:#fff; }
+
+  .preco{
+    font-size:20px;
+    font-weight:800;
+    margin-bottom:10px;
+  }
+
+  .info{
+    border:1px solid var(--cinza-borda);
+    border-radius:var(--radius);
+    padding:14px 16px;
+    flex:1;
+  }
+  .campo{
+    padding:8px 0;
+    border-bottom:1px solid var(--cinza-borda);
+    font-size:14.5px;
+    line-height:1.4;
+  }
+  .campo:last-of-type{ border-bottom:none; }
+  .campo b{ margin-right:4px; }
+  .campo .conteudo{
+    color:var(--cinza-texto);
+    white-space:pre-wrap;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+  }
+
+  .link-produto{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    background:var(--preto);
+    color:#fff;
+    text-decoration:none;
+    font-weight:600;
+    padding:14px;
+    border-radius:12px;
+    margin-top:14px;
+  }
+  .link-produto:active{ opacity:.85; }
+
+  .vazio, .carregando{
+    grid-column: 1 / -1;
+    text-align:center;
+    color:#888;
+    padding:40px 10px;
+    font-size:15px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="topo">
+    <div class="busca">
+      <input id="campoBusca" type="text" placeholder="Pesquisar por produto">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <circle cx="11" cy="11" r="7"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </div>
+    <button id="menuBtn" class="menu-btn" aria-label="Mostrar ou esconder categorias">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <line x1="4" y1="7" x2="20" y2="7"></line>
+        <line x1="4" y1="12" x2="20" y2="12"></line>
+        <line x1="4" y1="17" x2="20" y2="17"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div id="listaCategorias" class="categorias"></div>
+
+  <div id="listaProdutos">
+    <div class="carregando">Carregando produtos...</div>
+  </div>
+
+</div>
+
+<script>
+/* ======================================================
+   COMO ADICIONAR UM NOVO PRODUTO (sem mexer neste arquivo):
+
+   1. Copie um dos arquivos dentro da pasta /produtos/
+      (ex: mouse-bluetooth.json) e cole na mesma pasta com
+      um novo nome, tipo: tenis-corrida.json
+
+   2. Abra esse novo arquivo e troque os valores:
+      nome, categoria, imagens (uma lista, pode ter 1 ou várias),
+      descricao, tipo, preco, link
+
+      Se tiver mais de uma imagem, elas trocam sozinhas a cada
+      10 segundos dentro do card.
+
+   3. Abra o arquivo /produtos/index.json e adicione o nome
+      do novo arquivo na lista, entre aspas, separado por
+      vírgula. Exemplo:
+
+      [
+        "mouse-bluetooth.json",
+        "fone-ouvido.json",
+        "curso-video.json",
+        "tenis-corrida.json"
+      ]
+
+   Pronto — o produto aparece na página sozinho. Se um dia
+   você tiver uma API de verdade, é só trocar a função
+   buscarProdutos() abaixo pela chamada na API; o resto do
+   site (busca, categorias, grade) continua igual.
+====================================================== */
+
+const PASTA_PRODUTOS = 'produtos/';
+
+async function buscarProdutos(){
+  const respostaIndice = await fetch(PASTA_PRODUTOS + 'index.json');
+  const arquivos = await respostaIndice.json();
+
+  const produtos = await Promise.all(
+    arquivos.map(async arquivo => {
+      const resp = await fetch(PASTA_PRODUTOS + arquivo);
+      return resp.json();
+    })
+  );
+
+  return produtos;
+}
+
+const listaCategorias = document.getElementById('listaCategorias');
+const listaProdutos = document.getElementById('listaProdutos');
+const busca = document.getElementById('campoBusca');
+const menuBtn = document.getElementById('menuBtn');
+
+let todosProdutos = [];
+let categoriaAtiva = "Todos";
+
+menuBtn.addEventListener('click', () => {
+  listaCategorias.classList.toggle('fechada');
+  menuBtn.classList.toggle('ativo');
+});
+
+function escapeHTML(str){
+  const p = document.createElement('p');
+  p.textContent = str;
+  return p.innerHTML;
+}
+
+function renderCategorias(){
+  const categorias = ["Todos", ...new Set(todosProdutos.map(p => p.categoria))];
+  listaCategorias.innerHTML = categorias.map(cat => `
+    <button class="categoria-chip ${cat === categoriaAtiva ? 'ativa' : ''}" data-cat="${escapeHTML(cat)}">
+      ${escapeHTML(cat)}
+    </button>
+  `).join('');
+
+  listaCategorias.querySelectorAll('.categoria-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      categoriaAtiva = btn.dataset.cat;
+      renderCategorias();
+      renderProdutos(busca.value);
+    });
+  });
+}
+
+function renderProdutos(filtro = ''){
+  const termo = filtro.trim().toLowerCase();
+
+  const filtrados = todosProdutos.filter(p => {
+    const bateNome = p.nome.toLowerCase().includes(termo);
+    const bateCategoria = categoriaAtiva === "Todos" || p.categoria === categoriaAtiva;
+    return bateNome && bateCategoria;
+  });
+
+  if(filtrados.length === 0){
+    listaProdutos.innerHTML = `<div class="vazio">Nenhum produto encontrado.</div>`;
+    return;
+  }
+
+  listaProdutos.innerHTML = filtrados.map(p => {
+    const imagens = (p.imagens || []).filter(Boolean);
+    const temImagens = imagens.length > 0;
+    const temVarias = imagens.length > 1;
+
+    return `
+    <div class="produto">
+      <div class="produto-imagem" ${temVarias ? 'data-carrossel="1"' : ''}>
+        ${temImagens
+          ? imagens.map((url, i) => `<img src="${url}" alt="${escapeHTML(p.nome)}" class="${i === 0 ? 'ativa' : ''}">`).join('')
+          : "Imagem do produto"
+        }
+        ${temVarias ? `<div class="pontos">${imagens.map((_, i) => `<span class="${i === 0 ? 'ativo' : ''}"></span>`).join('')}</div>` : ''}
+      </div>
+
+      ${p.preco ? `<div class="preco">${escapeHTML(p.preco)}</div>` : ''}
+
+      <div class="info">
+        <div class="campo">
+          <b>Descrição sobre:</b>
+          <div class="conteudo">${escapeHTML(p.nome)} — ${escapeHTML(p.descricao)}</div>
+        </div>
+        <div class="campo">
+          <b>Tipo:</b> <span class="conteudo" style="display:inline">${escapeHTML(p.tipo)}</span>
+        </div>
+      </div>
+
+      <a class="link-produto" href="${p.link}" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"></path>
+          <path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"></path>
+        </svg>
+        Ver produto
+      </a>
+    </div>
+  `;
+  }).join('');
+
+  iniciarCarrosseis();
+}
+
+let intervalosCarrossel = [];
+
+function iniciarCarrosseis(){
+  // Limpa os intervalos antigos antes de criar novos, pra não acumular
+  intervalosCarrossel.forEach(id => clearInterval(id));
+  intervalosCarrossel = [];
+
+  document.querySelectorAll('.produto-imagem[data-carrossel]').forEach(caixa => {
+    const imgs = caixa.querySelectorAll('img');
+    const pontos = caixa.querySelectorAll('.pontos span');
+    let atual = 0;
+
+    const id = setInterval(() => {
+      imgs[atual].classList.remove('ativa');
+      pontos[atual]?.classList.remove('ativo');
+      atual = (atual + 1) % imgs.length;
+      imgs[atual].classList.add('ativa');
+      pontos[atual]?.classList.add('ativo');
+    }, 10000);
+
+    intervalosCarrossel.push(id);
+  });
+}
+
+busca.addEventListener('input', e => renderProdutos(e.target.value));
+
+buscarProdutos()
+  .then(produtos => {
+    todosProdutos = produtos;
+    renderCategorias();
+    renderProdutos();
+  })
+  .catch(erro => {
+    listaProdutos.innerHTML = `<div class="vazio">Não foi possível carregar os produtos. (${erro.message})</div>`;
+  });
+</script>
+
+</body>
+</html>

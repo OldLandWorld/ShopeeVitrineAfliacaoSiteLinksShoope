@@ -1,0 +1,13 @@
+{
+  "nome": "Curso de Edição de Vídeo",
+  "categoria": "Cursos",
+  "imagens": [
+    "https://picsum.photos/seed/video1/600",
+    "https://picsum.photos/seed/video2/600",
+    "https://picsum.photos/seed/video3/600"
+  ],
+  "descricao": "Escreva aqui a descrição do produto. Este exemplo tem 3 imagens que trocam sozinhas a cada 10 segundos.",
+  "tipo": "Digital",
+  "preco": "R$ 97,00",
+  "link": "https://link-do-produto-afiliado.com"
+}
