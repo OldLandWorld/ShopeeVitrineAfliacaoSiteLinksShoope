@@ -1,0 +1,20 @@
+
+
+
+
+
+
+
+{
+  "nome": "Teclado e mouse",
+  "categoria": "Eletrônico",
+  "imagens": [
+    "produtos/img/tecladoEmouseImg/img1.jpg",
+    "produtos/img/tecladoEmouseImg/img2.jpg",
+    "produtos/img/tecladoEmouseImg/img3.jpg"
+  ],
+  "descricao": "Teclado e mouse bluetooth.",
+  "tipo": "Físico",
+  "preco": "R$36,99 - R$96,99 - R$36,99",
+  "link": "https://s.shopee.com.br/8fR7yWlr5b"
+}
